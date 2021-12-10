@@ -63,7 +63,8 @@ app.post("/subscribe", async (req, res) => {
     subArray.push(subscription);
   }
 
-  subArray.map(async (value) => {
+  let sub = await storage.getItem("subscriptions");
+  sub.map((value) => {
     if (!isEqual(subscription, value)) {
       subArray.push(subscription);
     }

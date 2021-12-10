@@ -5,6 +5,7 @@ import webpush from "web-push";
 import bodyParser from "body-parser";
 import path from "path";
 import { createRequire } from "module";
+import e from "express";
 const require = createRequire(import.meta.url);
 
 const storage = require("node-persist");
@@ -56,27 +57,25 @@ app.post("/subscribe", async (req, res) => {
 
   await storage.init();
 
-  const subObject = await storage.getItem("subscriptions");
-  let subArray = [];
+  const subArray = await storage.getItem("subscriptions");
 
-  if (isEmpty(subObject)) {
-    subArray.push(subscription);
+  if (isEmpty(subArray)) {
+    await storage.setItem("subscriptions", [subArray]);
+  } else {
+    subArray.map((value) => {
+      if (!isEqual(subscription, value)) {
+        subArray.push(subscription);
+      }
+    });
+
+    await storage.setItem("subscriptions", subArray);
   }
-
-  let sub = await storage.getItem("subscriptions");
-  sub.map((value) => {
-    if (!isEqual(subscription, value)) {
-      subArray.push(subscription);
-    }
-  });
-
-  await storage.setItem("subscriptions", subArray);
 
   //pass the object into sendNotification
   if (moment().isoWeekday() == 5) {
     // console.log("hey");
     let allSub = await storage.getItem("subscriptions");
-    console.log(allSub);
+    console.log(allSub, "mario");
     allSub.map((value) => {
       webpush
         .sendNotification(value, payload)

@@ -60,7 +60,7 @@ app.post("/subscribe", async (req, res) => {
   const subArray = await storage.getItem("subscriptions");
 
   if (isEmpty(subArray)) {
-    await storage.setItem("subscriptions", [subArray]);
+    await storage.setItem("subscriptions", subArray);
   } else {
     subArray.map((value) => {
       if (!isEqual(subscription, value)) {

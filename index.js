@@ -1,23 +1,59 @@
 import fetch from "node-fetch";
 import express from "express";
 import moment from "moment";
-
+import webpush from "web-push";
+import bodyParser from "body-parser";
+import path from "path";
 const app = express();
+let __dirname = path.resolve();
+
+app.use(express.static(path.join(__dirname, "views")));
+app.use(bodyParser.json());
+
+const fetchTime = async () => {
+  try {
+    const response = await fetch(
+      "https://www.canada.ca/content/dam/ircc/documents/json/data-ptime-en.json"
+    );
+    const data = await response.json();
+    let res = data["visitor-outside-canada"]["LB"];
+    return res;
+  } catch (error) {
+    return "please refresh  :(";
+  }
+};
+
+const publicVapidKey =
+  "BInQfuPMAZD-MpQrIiz9jVsUYmKZeCd8H_nR3z6jux4G8Mo8pPEku3AiGYqTzGcAA48iCLrgREUseKexg20Osf4";
+const privateVapidKey = "Zr2KunDpEph9JOias5aaoIHgu3ge4siZgRu-VGb8QpU";
+
+webpush.setVapidDetails(
+  "mailto:test@test.com",
+  publicVapidKey,
+  privateVapidKey
+);
+
+//subscribe route
+app.post("/subscribe", async (req, res) => {
+  //get push subscription object
+  const subscription = req.body;
+
+  //send status 201
+  res.status(201).json({});
+
+  //create paylod
+  const payload = JSON.stringify({
+    title: "Tourist Visa Updated Today",
+    days: await fetchTime(),
+  });
+
+  //pass the object into sendNotification
+  webpush
+    .sendNotification(subscription, payload)
+    .catch((err) => console.error(err));
+});
 
 app.use("/", async (req, res, next) => {
-  const fetchTime = async () => {
-    try {
-      const response = await fetch(
-        "https://www.canada.ca/content/dam/ircc/documents/json/data-ptime-en.json"
-      );
-      const data = await response.json();
-      let res = data["visitor-outside-canada"]["LB"];
-      return res;
-    } catch (error) {
-      return "please refresh  :(";
-    }
-  };
-
   const dayINeed = 2; // for tuesday
   const today = moment().isoWeekday();
   let date;

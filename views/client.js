@@ -10,7 +10,7 @@ if ("serviceWorker" in navigator) {
 async function send() {
   //register service worker
   const register = await navigator.serviceWorker.register("/worker.js", {
-    scope: "/updateTime",
+    scope: "/",
   });
 
   //register push

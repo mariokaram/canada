@@ -20,6 +20,8 @@ async function send() {
     applicationServerKey: urlBase64ToUint8Array(publicVapidKey),
   });
 
+  // console.log(JSON.stringify(subscription));
+
   //Send push notification
   await fetch("/subscribe", {
     method: "POST",

@@ -4,6 +4,13 @@ import moment from "moment";
 import webpush from "web-push";
 import bodyParser from "body-parser";
 import path from "path";
+import { createRequire } from "module";
+const require = createRequire(import.meta.url);
+
+const storage = require("node-persist");
+const isEmpty = require("lodash");
+const isEqual = require("lodash");
+
 const app = express();
 let __dirname = path.resolve();
 
@@ -47,11 +54,33 @@ app.post("/subscribe", async (req, res) => {
     days: await fetchTime(),
   });
 
+  await storage.init();
+
+  const subObject = await storage.getItem("subscriptions");
+  let subArray = [];
+
+  if (isEmpty(subObject)) {
+    subArray.push(subscription);
+  }
+
+  subArray.map(async (value) => {
+    if (!isEqual(subscription, value)) {
+      subArray.push(subscription);
+    }
+  });
+
+  await storage.setItem("subscriptions", subArray);
+
   //pass the object into sendNotification
   if (moment().isoWeekday() == 5) {
-    webpush
-      .sendNotification(subscription, payload)
-      .catch((err) => console.error(err));
+    // console.log("hey");
+    let allSub = await storage.getItem("subscriptions");
+    console.log(allSub);
+    allSub.map((value) => {
+      webpush
+        .sendNotification(value, payload)
+        .catch((err) => console.error(err));
+    });
   }
 });
 

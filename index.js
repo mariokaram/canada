@@ -48,7 +48,7 @@ app.post("/subscribe", async (req, res) => {
   });
 
   //pass the object into sendNotification
-  if (moment().isoWeekday() == 2) {
+  if (moment().isoWeekday() == 5) {
     webpush
       .sendNotification(subscription, payload)
       .catch((err) => console.error(err));

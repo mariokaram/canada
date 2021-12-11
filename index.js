@@ -55,32 +55,32 @@ app.post("/subscribe", async (req, res) => {
     days: await fetchTime(),
   });
 
-  await storage.init();
+  // await storage.init();
 
-  const subArray = await storage.getItem("subscriptions");
+  // await storage.clear();
 
-  if (isEmpty(subArray)) {
-    await storage.setItem("subscriptions", subArray);
-  } else {
-    subArray.map((value) => {
-      if (!isEqual(subscription, value)) {
-        subArray.push(subscription);
-      }
-    });
+  // let subAll = []
 
-    await storage.setItem("subscriptions", subArray);
-  }
+  // const subArray = await storage.getItem("subscriptions");
+  // console.log(subArray);
 
-  //pass the object into sendNotification
-  if (moment().isoWeekday() == 5) {
+  // if (isEmpty(subArray)) {
+  //   subAll.push(subscription)
+  // } else {
+  //   subArray.map((value) => {
+  //     if (!isEqual(subscription, value)) {
+  //       subArray.push(subscription);
+  //     }
+  //   });
+
+  // }
+
+  // pass the object into sendNotification
+  if (moment().isoWeekday() == 2) {
     // console.log("hey");
-    let allSub = await storage.getItem("subscriptions");
-    console.log(allSub, "mario");
-    allSub.map((value) => {
-      webpush
-        .sendNotification(value, payload)
-        .catch((err) => console.error(err));
-    });
+    webpush
+      .sendNotification(subscription, payload)
+      .catch((err) => console.error(err));
   }
 });
 
